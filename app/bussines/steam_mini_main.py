@@ -18,17 +18,17 @@ global counter_games
 def get_all_game_data_steam(_locale, _country, is_update):
     offline = False
     written_game_ids_steam = open(WRITTEN_GAME_IDS.
-                                  format(_locale, _country), 'r', encoding='utf-8')
+                                  format(_locale, _country), 'r', encoding='utf-8-sig')
     written_game_ids_steam_ = written_game_ids_steam.readlines()
     written_game_ids_steam.close()
 
     page_data_failed_ids_steam = open(PAGE_DATA_FAILED_IDS.
-                                      format(_locale, _country), 'r', encoding='utf-8')
+                                      format(_locale, _country), 'r', encoding='utf-8-sig')
     page_data_failed_ids_steam_ = page_data_failed_ids_steam.readlines()
     page_data_failed_ids_steam.close()
 
     non_game_ids_steam = open(NON_GAME_IDS.
-                              format(_locale, _country), 'r', encoding='utf-8')
+                              format(_locale, _country), 'r', encoding='utf-8-sig')
     non_game_ids_steam_ = non_game_ids_steam.readlines()
     non_game_ids_steam.close()
 
@@ -55,7 +55,7 @@ def get_all_game_data_steam(_locale, _country, is_update):
     print(str(all_game_ids_steam_))
     get_game_steam_loop(all_game_ids_steam_, 0, -1, _locale, _country, is_update)
 
-    written_game_ids_xbox = open(WRITTEN_GAME_IDS.format(_locale, _country), 'w', encoding='utf-8')
+    written_game_ids_xbox = open(WRITTEN_GAME_IDS.format(_locale, _country), 'w', encoding='utf-8-sig')
     written_game_ids_xbox.close()
 
 
@@ -85,11 +85,11 @@ def get_game_steam_loop(all_game_ids_steam_, start, end, _locale, _country, is_u
     for id_ in all_game_ids_steam_[start: end]:
 
         page_data_failed_ids_steam = open(PAGE_DATA_FAILED_IDS.
-                                          format(_locale, _country), 'a', encoding='utf-8')
+                                          format(_locale, _country), 'a', encoding='utf-8-sig')
         written_game_ids_steam = open(WRITTEN_GAME_IDS.
-                                      format(_locale, _country), 'a', encoding='utf-8')
+                                      format(_locale, _country), 'a', encoding='utf-8-sig')
         non_game_ids_steam = open(NON_GAME_IDS.
-                                  format(_locale, _country), 'a', encoding='utf-8')
+                                  format(_locale, _country), 'a', encoding='utf-8-sig')
 
         global counter_games
         print('Getting game : {}'.format(counter_games))
@@ -221,6 +221,7 @@ def get_game_data_steam(_locale, _country, steam_id):
 
     try:
         name = result[steam_id]['data']['name']
+        print(name)
     except KeyError:
         raise GetNameFailed(steam_id)
     except TypeError:
@@ -265,6 +266,8 @@ def get_game_data_steam(_locale, _country, steam_id):
 
     long_desc = long_desc[0:5000]
     short_desc = result[steam_id]['data']['short_description'][0:2000]
+    if short_desc =='':
+        short_desc="null"
 
     try:
         developers = result[steam_id]['data']['developers']
@@ -277,6 +280,12 @@ def get_game_data_steam(_locale, _country, steam_id):
 
     try:
         publishers = result[steam_id]['data']['publishers']
+        if len(publishers) == 0:
+            publishers = ["null"]
+        if publishers[0] == "":
+            publishers = ["null"]
+        print(publishers)
+
     except TypeError:
         publishers = ["null"]
     except KeyError:
@@ -303,14 +312,20 @@ def get_game_data_steam(_locale, _country, steam_id):
         GetGenreFailed(steam_id)
 
     try:
-        release_date = datetime.strptime(result_en[steam_id]['data']['release_date']['date'], "%b %d, %Y")
+        release_date = datetime.strptime('1900', "%Y")
         print ("Release")
+
     except TypeError:
         release_date = datetime.strptime('1900', "%Y")
         GetReleaseDateFailed(steam_id)
     except KeyError:
         release_date = datetime.strptime('1900', "%Y")
         GetReleaseDateFailed(steam_id)
+    except ValueError:
+        try:
+            release_date = datetime.strptime(result_en[steam_id]['data']['release_date']['date'], "%d %b, %Y")
+        except ValueError:
+            release_date = datetime.strptime(result_en[steam_id]['data']['release_date']['date'], "%b %Y")
 
     try:
         vid_urls = [urls['webm']['max'] for urls in result_en[steam_id]['data']['movies']]

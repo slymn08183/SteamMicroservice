@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'steam_ms',
         'USER': 'postgres',
-        'PASSWORD': 'Z9z9slymn23.',
+        'PASSWORD': 'Keskin3858*',
     }
 }
 
