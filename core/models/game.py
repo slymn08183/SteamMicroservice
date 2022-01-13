@@ -14,9 +14,9 @@ from core.models.video import Video
 
 class Game(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=300, unique=True, blank=False, null=False)
-    thumbnail = models.CharField(max_length=2000, blank=False, null=False)
-    release_date = models.DateTimeField(null=False)
+    name = models.CharField(max_length=300, unique=True, blank=False, null=True)
+    thumbnail = models.CharField(max_length=2000, blank=False, null=True)
+    release_date = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(default=datetime.datetime.now)
     is_deleted = models.BooleanField(default=0)
     store_url = models.TextField()

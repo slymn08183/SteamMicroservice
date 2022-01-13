@@ -52,7 +52,7 @@ def get_all_game_data_steam(_locale, _country, is_update):
     counter_games = len(page_data_failed_ids_steam_) + len(non_game_ids_steam_) + len(written_game_ids_steam_)
 
     # split_processing(all_game_ids_steam_, get_game_steam_loop, 10)
-    print(str(all_game_ids_steam_))
+    # print(str(all_game_ids_steam_))
     get_game_steam_loop(all_game_ids_steam_, 0, -1, _locale, _country, is_update)
 
     written_game_ids_xbox = open(WRITTEN_GAME_IDS.format(_locale, _country), 'w', encoding='utf-8')
@@ -139,6 +139,9 @@ def get_game_steam_loop(all_game_ids_steam_, start, end, _locale, _country, is_u
                 print('\t\t' + err.game_id)
             except GameCore.DoesNotExist:
                 dao.create(get_game_data_steam(_locale, _country, str(id_)))
+            except Exception as e:
+                print(e)
+                raise e
             print('\n')
             is_once = True
             break
@@ -176,15 +179,12 @@ def __get_price_data_steam(_locale, _country, steam_id, variable=None):
                  variable[steam_id]['data']['price_overview']['final_formatted'],
                  variable[steam_id]['data']['price_overview']['initial_formatted']]
     except TypeError:
-        price = [-1, -1, -1, -1]
+        price = None
         GetPriceDataFailed(steam_id)
     except KeyError:
-        price = [-1, -1, -1, -1]
+        price = None
         GetPriceDataFailed(steam_id)
 
-    for index, p in enumerate(price):
-        if p == "":
-            price[index] = "null"
     return price  # TODO: should give an output maybe txt.
 
 
@@ -208,7 +208,6 @@ def get_game_data_steam(_locale, _country, steam_id):
 
             raise GetPageDataFailed(steam_id)
     except ErrorWhileLoadingStoreUrl:
-        print("abowwwwww")
         raise GetPageDataFailed(steam_id)
     except TypeError:
         raise GetPageDataFailed(steam_id)
@@ -269,18 +268,18 @@ def get_game_data_steam(_locale, _country, steam_id):
     try:
         developers = result[steam_id]['data']['developers']
     except KeyError:
-        developers = "null"
+        developers = None
         GetDevelopersDataFailed(steam_id)
     except TypeError:
-        developers = "null"
+        developers = None
         GetDevelopersDataFailed(steam_id)
 
     try:
         publishers = result[steam_id]['data']['publishers']
     except TypeError:
-        publishers = ["null"]
+        publishers = None
     except KeyError:
-        publishers = ["null"]
+        publishers = None
 
     price = __get_price_data_steam(_locale, _country, steam_id, result)
 
@@ -296,38 +295,37 @@ def get_game_data_steam(_locale, _country, steam_id):
         for word in [json_['description'] for json_ in result_en[steam_id]['data']['genres']]:
             genres.append(str(word).replace(' ', '').upper())
     except TypeError:
-        genres = ["null"]
+        genres = None
         GetGenreFailed(steam_id)
     except KeyError:
-        genres = ["null"]
+        genres = None
         GetGenreFailed(steam_id)
 
     try:
-        release_date = datetime.strptime(result_en[steam_id]['data']['release_date']['date'], "%b %d, %Y")
-        print ("Release")
+        release_date = result_en[steam_id]['data']['release_date']['date']
     except TypeError:
-        release_date = datetime.strptime('1900', "%Y")
+        release_date = None
         GetReleaseDateFailed(steam_id)
     except KeyError:
-        release_date = datetime.strptime('1900', "%Y")
+        release_date = None
         GetReleaseDateFailed(steam_id)
 
     try:
         vid_urls = [urls['webm']['max'] for urls in result_en[steam_id]['data']['movies']]
     except TypeError:
-        vid_urls = ["null"]
+        vid_urls = None
         GetVideoDataFailed(steam_id)
     except KeyError:
-        vid_urls = ["null"]
+        vid_urls = None
         GetVideoDataFailed(steam_id)
 
     try:
         pic_urls = [urls['path_full'] for urls in result_en[steam_id]['data']['screenshots']]
     except KeyError:
-        pic_urls = ["null"]
+        pic_urls = None
         GetPictureDataFailed(steam_id)
     except TypeError:
-        pic_urls = ["null"]
+        pic_urls = None
         GetPictureDataFailed(steam_id)
 
     title_specs = []
@@ -339,11 +337,11 @@ def get_game_data_steam(_locale, _country, steam_id):
             tmp = str(BeautifulSoup(str(i), "html.parser").text).split(":")
             rec_specs.append(tmp[1])
     except TypeError:
-        rec_specs = ["null"]
+        rec_specs = None
     except KeyError:
-        rec_specs = ["null"]
+        rec_specs = None
     except IndexError:
-        rec_specs = ["null"]
+        rec_specs = None
 
     # FIXME: bura ne amk index err falan iyi ayarla burayı
 
@@ -357,17 +355,17 @@ def get_game_data_steam(_locale, _country, steam_id):
             title_specs.append(tmp[0])
             min_specs.append(tmp[1])
     except TypeError:
-        min_specs = ["null"]
-        rec_specs = ["null"]
-        title_specs = ["null"]
+        min_specs = None
+        rec_specs = None
+        title_specs = None
     except KeyError:
-        min_specs = ["null"]
-        rec_specs = ["null"]
-        title_specs = ["null"]
+        min_specs = None
+        rec_specs = None
+        title_specs = None
     except IndexError:
-        min_specs = ["null"]
-        rec_specs = ["null"]
-        title_specs = ["null"]
+        min_specs = None
+        rec_specs = None
+        title_specs = None
 
     return Game(
         locale=_locale,
