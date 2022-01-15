@@ -5,5 +5,5 @@ from core.models.specification import Specification
 class SpecificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Specification
-        fields = '__all__'
+        fields = ['min', 'max']
 

@@ -6,7 +6,7 @@ from core.models.publisher import Publisher
 class PublisherSerializer(UniqueFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Publisher
-        fields = '__all__'
+        fields = ['name']
 
     def create(self, validated_data):
         return Publisher.objects.get_or_create(**validated_data)[0]

@@ -5,5 +5,5 @@ from core.models.description import Description
 class DescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Description
-        fields = '__all__'
+        fields = ['long', 'short']
 

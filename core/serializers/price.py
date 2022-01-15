@@ -1,4 +1,3 @@
-from drf_writable_nested import WritableNestedModelSerializer
 from rest_framework import serializers
 from core.models.price import Price
 
@@ -6,4 +5,10 @@ from core.models.price import Price
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
-        fields = '__all__'
+        fields = [
+            'discount',
+            'original',
+            'discount_fmt',
+            'original_fmt',
+            'created_at'
+        ]
